@@ -1,7 +1,13 @@
+import os
 import requests
 
-# URL base de la API del servidor
-API_URL = "http://127.0.0.1:5000/tasks"
+import dotenv
+
+dotenv.load_dotenv()
+
+# URL del servidor de la API, se trae desde el archivo .env
+api_server_url = os.environ.get("SERVER_API_URL")
+
 
 def show_menu():
     """Muestra el menú principal de opciones en la consola."""
@@ -13,10 +19,11 @@ def show_menu():
     print("5. Borrar una tarea")
     print("6. Salir")
 
+
 def get_tasks():
     """Solicita y muestra todas las tareas del servidor."""
     try:
-        response = requests.get(API_URL)
+        response = requests.get(api_server_url)
         tasks = response.json()
         print("\nTareas:")
         for id, task in tasks.items():
@@ -24,11 +31,12 @@ def get_tasks():
     except requests.exceptions.RequestException as e:
         print(f"Error al conectar con el servidor: {e}")
 
+
 def get_task():
     """Solicita y muestra una tarea específica por su ID."""
     task_id = input("Ingrese el ID de la tarea: ")
     try:
-        response = requests.get(f"{API_URL}/{task_id}")
+        response = requests.get(f"{api_server_url}/{task_id}")
         if response.status_code == 200:
             task = response.json()
             print(f"\nTarea {task_id}: {task}")
@@ -37,16 +45,18 @@ def get_task():
     except requests.exceptions.RequestException as e:
         print(f"Error al conectar con el servidor: {e}")
 
+
 def create_task():
     """Crea una nueva tarea en el servidor."""
     title = input("Título de la tarea: ")
     description = input("Descripción de la tarea: ")
     task = {"title": title, "description": description}
     try:
-        response = requests.post(API_URL, json=task)
+        response = requests.post(api_server_url, json=task)
         print("Tarea creada:", response.json())
     except requests.exceptions.RequestException as e:
         print(f"Error al conectar con el servidor: {e}")
+
 
 def update_task():
     """Modifica una tarea existente en el servidor."""
@@ -55,7 +65,7 @@ def update_task():
     description = input("Nueva descripción de la tarea: ")
     task = {"title": title, "description": description}
     try:
-        response = requests.put(f"{API_URL}/{task_id}", json=task)
+        response = requests.put(f"{api_server_url}/{task_id}", json=task)
         if response.status_code == 200:
             print("Tarea actualizada:", response.json())
         else:
@@ -63,11 +73,12 @@ def update_task():
     except requests.exceptions.RequestException as e:
         print(f"Error al conectar con el servidor: {e}")
 
+
 def delete_task():
     """Elimina una tarea existente en el servidor."""
     task_id = input("Ingrese el ID de la tarea a eliminar: ")
     try:
-        response = requests.delete(f"{API_URL}/{task_id}")
+        response = requests.delete(f"{api_server_url}/{task_id}")
         if response.status_code == 200:
             print("Tarea eliminada.")
         else:
@@ -75,11 +86,12 @@ def delete_task():
     except requests.exceptions.RequestException as e:
         print(f"Error al conectar con el servidor: {e}")
 
+
 if __name__ == "__main__":
     while True:
         show_menu()
         choice = input("Seleccione una opción: ")
-        
+
         if choice == '1':
             get_tasks()
         elif choice == '2':

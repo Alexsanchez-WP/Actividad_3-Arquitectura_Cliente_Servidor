@@ -1,9 +1,14 @@
+import os
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 import requests
 
-# URL de la API donde se encuentran las tareas
-API_URL = "http://127.0.0.1:5000/tasks"
+import dotenv
+
+dotenv.load_dotenv()
+
+# URL del servidor de la API, se trae desde el archivo .env
+api_server_url = os.environ.get("SERVER_API_URL")
 
 class TaskManagerApp:
     def __init__(self, root):
@@ -27,7 +32,7 @@ class TaskManagerApp:
     def get_tasks(self):
         """Recupera y muestra todas las tareas desde el servidor."""
         try:
-            response = requests.get(API_URL)
+            response = requests.get(api_server_url)
             tasks = response.json()
             # Formatea las tareas para mostrarlas en una ventana emergente
             task_list = "\n".join([f"ID {id}: {task['title']} - {task['description']}" for id, task in tasks.items()])
@@ -41,7 +46,7 @@ class TaskManagerApp:
         task_id = simpledialog.askstring("Obtener Tarea", "Ingrese el ID de la tarea:")
         if task_id:
             try:
-                response = requests.get(f"{API_URL}/{task_id}")
+                response = requests.get(f"{api_server_url}/{task_id}")
                 if response.status_code == 200:
                     task = response.json()
                     # Muestra el título y la descripción de la tarea en una ventana emergente
@@ -58,7 +63,7 @@ class TaskManagerApp:
         if title and description:
             task = {"title": title, "description": description}
             try:
-                response = requests.post(API_URL, json=task)
+                response = requests.post(api_server_url, json=task)
                 # Muestra un mensaje de éxito al crear la tarea
                 messagebox.showinfo("Tarea Creada", f"Tarea creada con éxito: {response.json()}")
             except requests.exceptions.RequestException as e:
@@ -73,7 +78,7 @@ class TaskManagerApp:
             if title and description:
                 task = {"title": title, "description": description}
                 try:
-                    response = requests.put(f"{API_URL}/{task_id}", json=task)
+                    response = requests.put(f"{api_server_url}/{task_id}", json=task)
                     if response.status_code == 200:
                         messagebox.showinfo("Tarea Modificada", f"Tarea actualizada: {response.json()}")
                     else:
@@ -86,7 +91,7 @@ class TaskManagerApp:
         task_id = simpledialog.askstring("Borrar Tarea", "Ingrese el ID de la tarea a eliminar:")
         if task_id:
             try:
-                response = requests.delete(f"{API_URL}/{task_id}")
+                response = requests.delete(f"{api_server_url}/{task_id}")
                 if response.status_code == 200:
                     messagebox.showinfo("Tarea Eliminada", "Tarea eliminada con éxito.")
                 else:
